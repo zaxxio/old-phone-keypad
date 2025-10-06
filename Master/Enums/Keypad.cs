@@ -1,6 +1,9 @@
 namespace Master.Enums;
 
-public enum KeyDigit
+/// <summary>
+/// Key Pad containing number as enum values.
+/// </summary>
+public enum KeyPad
 {
     Zero = 0,
     One,

@@ -2,33 +2,38 @@ using Master.Enums;
 
 namespace Master.Context;
 
+/// <summary>
+/// Keeps track of the current text conversion state.
+/// Stores the result, previous digit, and press count for cycling through letters.
+/// </summary>
 public class OldPhoneContext
 {
-    private static readonly Dictionary<KeyDigit, string> KeyMap = new()
+    // Keypad to letters mapping
+    private static readonly Dictionary<KeyPad, string> KeyMap = new()
     {
-        { KeyDigit.Zero, " " },
-        { KeyDigit.One, "&'(" },
-        { KeyDigit.Two, "ABC" },
-        { KeyDigit.Three, "DEF" },
-        { KeyDigit.Four, "GHI" },
-        { KeyDigit.Five, "JKL" },
-        { KeyDigit.Six, "MNO" },
-        { KeyDigit.Seven, "PQRS" },
-        { KeyDigit.Eight, "TUV" },
-        { KeyDigit.Nine, "WXYZ" }
+        { KeyPad.Zero, " " },
+        { KeyPad.One, "&'(" },
+        { KeyPad.Two, "ABC" },
+        { KeyPad.Three, "DEF" },
+        { KeyPad.Four, "GHI" },
+        { KeyPad.Five, "JKL" },
+        { KeyPad.Six, "MNO" },
+        { KeyPad.Seven, "PQRS" },
+        { KeyPad.Eight, "TUV" },
+        { KeyPad.Nine, "WXYZ" }
     };
 
     public string Result = "";
-    public char Prev = '\0';
-    public int Count = 0;
+    public char Prev = '\0'; // Previous digit
+    public int Count = 0; // Press count
 
     public void CommitPrevious()
     {
         if (Prev != '\0')
         {
-            KeyDigit digit = (KeyDigit)(Prev - '0');
-            string letters = KeyMap[digit];
-            Result += letters[(Count - 1) % letters.Length];
+            KeyPad pad = (KeyPad)(Prev - '0');
+            string letters = KeyMap[pad];
+            Result += letters[(Count - 1) % letters.Length]; // Cycle through letters
             Prev = '\0';
             Count = 0;
         }

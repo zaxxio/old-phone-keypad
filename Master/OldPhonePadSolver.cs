@@ -5,8 +5,13 @@ namespace Master;
 
 using System;
 
+/// <summary>
+/// Converts old phone keypad input to text messages.
+/// Handles digits, backspace, pause, and send operations just like old mobile phones.
+/// </summary>
 public class OldPhonePadSolver
 {
+    // Special key handlers
     private readonly Dictionary<char, IKeyHandler> _handlers = new()
     {
         { '*', new BackspaceHandler() },
@@ -24,21 +29,19 @@ public class OldPhonePadSolver
             if (_handlers.TryGetValue(c, out var handler))
             {
                 handler.Handle(c, ctx);
-                if (c == '#') break; 
+                if (c == '#') break; // Stop processing after send
             }
             else if (char.IsDigit(c))
             {
                 digitHandler.Handle(c, ctx);
             }
         }
-        ctx.CommitPrevious();
+        ctx.CommitPrevious(); // Commit final character
         return ctx.Result;
     }
 
     public static void Main(string[] args)
     {
-        var solver = new OldPhonePadSolver();
-        Console.WriteLine(solver.OldPhonePad("4433555 555666#")); // HELLO
-        Console.WriteLine(solver.OldPhonePad("8 88777444666*664#")); // TONE
+        
     }
 }
