@@ -1,55 +1,44 @@
+using Master.Context;
+using Master.Handler;
+
 namespace Master;
 
 using System;
 
 public class OldPhonePadSolver
 {
-    public static string OldPhonePad(string input)
+    private readonly Dictionary<char, IKeyHandler> _handlers = new()
     {
-        string[] KeyPad = {
-            " ", "&'(", "ABC", "DEF",
-            "GHI", "JKL", "MNO", "PQRS",
-            "TUV", "WXYZ"
-        };
+        { '*', new BackspaceHandler() },
+        { ' ', new PauseHandler() },
+        { '#', new SendHandler() }
+    };
 
-        string result = "";
-        char prev = '\0';
-        int count = 0;
+    public string OldPhonePad(string input)
+    {
+        var ctx = new OldPhoneContext();
+        var digitHandler = new DigitHandler();
 
         foreach (char c in input)
         {
-            if (c == '#') // Send
+            if (_handlers.TryGetValue(c, out var handler))
             {
-                if (prev != '\0') 
-                    result += KeyPad[prev - '0'][(count - 1) % KeyPad[prev - '0'].Length];
-                break;
+                handler.Handle(c, ctx);
+                if (c == '#') break; 
             }
-            else if (c == '*') // Backspace
+            else if (char.IsDigit(c))
             {
-                if (count > 0) { prev = '\0'; count = 0; }
-                else if (result.Length > 0) result = result[..^1];
-            }
-            else if (c == ' ') // Pause
-            {
-                if (prev != '\0')
-                {
-                    result += KeyPad[prev - '0'][(count - 1) % KeyPad[prev - '0'].Length];
-                    prev = '\0'; count = 0;
-                }
-            }
-            else if (char.IsDigit(c)) // Digit
-            {
-                if (c == prev) count++;
-                else
-                {
-                    if (prev != '\0')
-                        result += KeyPad[prev - '0'][(count - 1) % KeyPad[prev - '0'].Length];
-                    prev = c; count = 1;
-                }
+                digitHandler.Handle(c, ctx);
             }
         }
-
-        return result;
+        ctx.CommitPrevious();
+        return ctx.Result;
     }
-    
+
+    public static void Main(string[] args)
+    {
+        var solver = new OldPhonePadSolver();
+        Console.WriteLine(solver.OldPhonePad("4433555 555666#")); // HELLO
+        Console.WriteLine(solver.OldPhonePad("8 88777444666*664#")); // TONE
+    }
 }
